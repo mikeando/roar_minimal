@@ -1,0 +1,82 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="http://admin.roarengine.com/codeconsole/css/prettify.css" />
+  <script type="text/javascript" src="http://admin.roarengine.com/codeconsole/js/prettify.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script>
+    var raw_xml = '';
+    var do_xml = function(xml)
+    {
+	$('#codeblock').text(xml);
+        raw_xml = xml;
+	prettyPrint();
+	console.log(xml);
+    };
+
+    var append_xml = function(xml)
+    {
+	var txt = $('#codeblock').text();
+        raw_xml = raw_xml + "\n\n" + xml;
+        $('#codeblock').text( raw_xml );
+	
+	prettyPrint();
+	console.log(xml);
+    };
+
+    var serialize = function(obj)
+    {
+	var str = [];
+	for(var p in obj)
+	{
+		str.push(p + "=" + encodeURIComponent(obj[p]));
+	}
+	return str.join("&");
+    }
+
+
+    //Helper to load the xml in a jsonp style
+    var do_ajax = function(callback,path, data)
+    {
+	data.game = 'matest';
+        data.path = path;
+        data.callback = callback;
+	var script = document.createElement('script');
+	script.setAttribute('src', "http://admin.roarengine.com/codeconsole/xhr_jsonp.php?"+serialize(data) );
+
+	// load the script
+	document.getElementsByTagName('head')[0].appendChild(script);
+    }
+  </script>
+</head>
+<body>
+
+<div>
+<h2>PING</h2>
+<a onclick="do_ajax('do_xml', 'game/ping/', {})" >DO IT</a>
+</div>
+
+<h2>CREATE</h2>
+<input id="create_username"/><BR>
+<input id="create_hash"/><BR>
+<a onclick="do_ajax('do_xml', 'game/create/', { name:$('#create_username').val(),hash:$('#create_hash').val() })" >DO IT</a>
+</div>
+
+<div>
+<h2>LOG IN</h2>
+<input id="login_username"/><BR>
+<input id="login_hash"/><BR>
+<a onclick="do_ajax('do_xml', 'game/login/', { name:$('#login_username').val(),hash:$('#login_hash').val() })" >DO IT</a>
+</div>
+
+<div>
+<h2>GAME INFO</h2>
+<input id="auth_token"/><BR>
+<a onclick="do_ajax('do_xml', 'game/info/', { auth_token:$('#auth_token').val() })" >DO IT</a>
+</div>
+
+<div id="log">
+<pre class="prettyprint lang-xml" id="codeblock"></pre>
+</div>
+
+</body>
+</html>
