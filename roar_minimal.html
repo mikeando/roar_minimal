@@ -4,6 +4,9 @@
   <script type="text/javascript" src="http://admin.roarengine.com/codeconsole/js/prettify.js"></script>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script>
+    var my_xhr_address = "http://somewhere/xhr_jsonp.php";
+    var my_game_name = "matest";
+
     var raw_xml = '';
     var do_xml = function(xml)
     {
@@ -33,15 +36,16 @@
 	return str.join("&");
     }
 
-
     //Helper to load the xml in a jsonp style
-    var do_ajax = function(callback,path, data)
+    //would be nice to be able to pass in a function rather than a string to
+    //get the usual javascript callback style
+    var do_ajax = function(callback, path, data)
     {
-	data.game = 'matest';
+	data.game = gamename
         data.path = path;
         data.callback = callback;
 	var script = document.createElement('script');
-	script.setAttribute('src', "http://admin.roarengine.com/codeconsole/xhr_jsonp.php?"+serialize(data) );
+	script.setAttribute('src', my_xhr_address+"?"+serialize(data) );
 
 	// load the script
 	document.getElementsByTagName('head')[0].appendChild(script);
