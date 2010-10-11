@@ -1,82 +1,225 @@
 <html>
 <head>
-  <link rel="stylesheet" type="text/css" href="http://admin.roarengine.com/codeconsole/css/prettify.css" />
-  <script type="text/javascript" src="http://admin.roarengine.com/codeconsole/js/prettify.js"></script>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-  <script>
-    var my_xhr_address = "http://somewhere/xhr_jsonp.php";
-    var my_game_name = "matest";
+<style>
+a.game_action { color:#f00; border:1px solid #000; padding:1px; }
+#log { clear:both; }
 
-    var raw_xml = '';
-    var do_xml = function(xml)
+
+</style>
+
+  <link rel="stylesheet" type="text/css" href="tabs.css" />
+  <link rel="stylesheet" type="text/css" href="http://localhost/codeconsole/css/prettify.css" />
+  <script type="text/javascript" src="http://localhost/codeconsole/js/prettify.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="ajaxp.js"></script>
+  <script>
+    var xhr_address = "http://localhost/codeconsole/xhr_jsonp.php";
+    var game_name = "server";
+
+   // Set up the functions to call when some buttons are pressed.
+   // We use jquery and the ajax functions bound to the buttons.
+
+   $(document).ready( function() { //START STUFF TO DO AFTER LOAD
+
+	$('#create_div a').click( function(){ 
+		var data = { 
+			name:$('#create_username').val(),
+			hash:$('#create_hash').val()
+		};
+		$('#login_username').val( $('#create_username').val() );
+		$('#login_hash').val( $('#create_hash').val() );
+		var on_create = function(xml) {
+			//Should have some error handling in here...
+			$('#create_div').hide();
+			$('#login_div').show();
+			show_xml(xml);
+		};
+		do_ajax( on_create, 'game/create/', data )
+	} );
+
+	$('#ping_div a').click( function(){ 
+		do_ajax( show_xml, 'game/ping/', {} );
+	} );
+
+	$('#login_div a').click( function(){ 
+		var data = { 
+			name:$('#login_username').val(),
+			hash:$('#login_hash').val()
+		};
+		var on_create = function(xml) {
+			$('#login_div').hide();
+			$('#game_div').show();
+			$('#auth_token').val( $(xml).find("auth_token").text() );
+			show_xml(xml);
+		};
+		do_ajax( on_create, 'game/login/', data );
+	} );
+
+	$('#game_info').click( function(){ 
+		var data = { 
+			auth_token:$('#auth_token').val()
+		};
+		do_ajax( show_xml, 'game/info/', data );
+	} );
+
+	$('#social_invite').click( function(){ 
+		var data = { 
+			auth_token:$('#auth_token').val(),
+			friend_id:0
+		};
+		do_ajax( show_xml, 'social/invite_send/', data );
+	} );
+
+	$('#social_invite_info').click( function(){ 
+		var data = { 
+			auth_token:$('#auth_token').val(),
+			invite_id:$('#invite_id').val()
+		};
+		do_ajax( show_xml, 'social/invite_info/', data );
+	} );
+
+	$('#social_invite_accept').click( function(){ 
+		var data = { 
+			auth_token:$('#auth_token').val(),
+			invite_id:$('#invite_id').val()
+		};
+		do_ajax( show_xml, 'social/invite_accept/', data );
+	} );
+
+	$('#social_friend_show').click( function(){ 
+		var data = { 
+			auth_token:$('#auth_token').val(),
+		};
+		do_ajax( show_xml, 'social/friend_show/', data );
+	} );
+
+	$('#shop_show').click( function(){ 
+		var data = { 
+			auth_token:$('#auth_token').val(),
+		};
+		do_ajax( show_xml, 'shop/show/', data );
+	} );
+
+	$('#shop_buy').click( function(){ 
+		var data = { 
+			shop_item_ikey:$('#shop_buy_ikey').val(),
+			auth_token:$('#auth_token').val(),
+		};
+		do_ajax( show_xml, 'shop/buy/', data );
+	} );
+
+	$('#inventory').click( function(){ do_ajax( show_xml, 'items/show/', { auth_token:$('#auth_token').val() } ); } );
+
+	$('#what_can_i_send').click( function(){ do_ajax( show_xml, 'mail/what_can_i_send/', { auth_token:$('#auth_token').val() } ); } );
+
+	$('#what_can_i_accept').click( function(){ do_ajax( show_xml, 'mail/what_can_i_accept/', { auth_token:$('#auth_token').val() } ); } );
+
+	$('#send').click( function(){ do_ajax( show_xml, 'mail/send/', {
+		auth_token:$('#auth_token').val(),
+		recipient_id:$('#send_recipient_id').val(),
+		mailable_id:$('#send_mailable_id').val(),
+		message:$('#send_message').val()
+		} ); } );
+
+	$('#accept').click( function(){ do_ajax( show_xml, 'mail/accept/', {
+		auth_token:$('#auth_token').val(),
+		mail_id:$('#accept_mail_id').val()
+		} ); } );
+
+	//TABS CODE
+	//When page loads...
+	$(".tab_content").hide(); //Hide all content
+	$("ul.tabs li:first").addClass("active").show(); //Activate first tab
+	$(".tab_content:first").show(); //Show first tab content
+
+	//On Click Event
+	$("ul.tabs li").click(function() {
+
+		$("ul.tabs li").removeClass("active"); //Remove any "active" class
+		$(this).addClass("active"); //Add "active" class to selected tab
+		$(".tab_content").hide(); //Hide all tab content
+
+		var activeTab = $(this).find("a").attr("href"); //Find the href attribute value to identify the active tab + content
+		$(activeTab).fadeIn(); //Fade in the active ID content
+		return false;
+	});
+
+   } ); //END STUFF TO DO AFTER LOAD
+
+
+    ///
+    /// Display functions
+    ///
+    var show_xml = function(xml)
     {
 	$('#codeblock').text(xml);
-        raw_xml = xml;
 	prettyPrint();
 	console.log(xml);
     };
 
-    var append_xml = function(xml)
-    {
-	var txt = $('#codeblock').text();
-        raw_xml = raw_xml + "\n\n" + xml;
-        $('#codeblock').text( raw_xml );
-	
-	prettyPrint();
-	console.log(xml);
-    };
-
-    var serialize = function(obj)
-    {
-	var str = [];
-	for(var p in obj)
-	{
-		str.push(p + "=" + encodeURIComponent(obj[p]));
-	}
-	return str.join("&");
-    }
-
-    //Helper to load the xml in a jsonp style
-    //would be nice to be able to pass in a function rather than a string to
-    //get the usual javascript callback style
-    var do_ajax = function(callback, path, data)
-    {
-	data.game = gamename
-        data.path = path;
-        data.callback = callback;
-	var script = document.createElement('script');
-	script.setAttribute('src', my_xhr_address+"?"+serialize(data) );
-
-	// load the script
-	document.getElementsByTagName('head')[0].appendChild(script);
-    }
   </script>
 </head>
 <body>
 
-<div>
-<h2>PING</h2>
-<a onclick="do_ajax('do_xml', 'game/ping/', {})" >DO IT</a>
+<div id="ping_div">
+<a class="game_action">PING!</a>
+</div><BR><BR><BR>
+
+<div id="chooser">
+<a class="game_action" onclick="$('#create_div').show(); $('#chooser').hide();" >CREATE</a> or 
+<a class="game_action" onclick="$('#login_div').show(); $('#chooser').hide();" >LOG IN</a>
 </div>
 
+<div id="create_div" style="display:none;">
 <h2>CREATE</h2>
-<input id="create_username"/><BR>
-<input id="create_hash"/><BR>
-<a onclick="do_ajax('do_xml', 'game/create/', { name:$('#create_username').val(),hash:$('#create_hash').val() })" >DO IT</a>
+<table>
+<tr><td>Username</td><td><input id="create_username"/></td></tr>
+<tr><td>Password</td><td><input id="create_hash"/></td></tr>
+</table>
+<a class="game_action">create</a>
 </div>
 
-<div>
+<div id="login_div" style="display:none;">
 <h2>LOG IN</h2>
-<input id="login_username"/><BR>
-<input id="login_hash"/><BR>
-<a onclick="do_ajax('do_xml', 'game/login/', { name:$('#login_username').val(),hash:$('#login_hash').val() })" >DO IT</a>
+<table>
+<tr><td>Username</td><td><input id="login_username"/></td></tr>
+<tr><td>Password</td><td><input id="login_hash"/></td></tr>
+</table>
+<a class="game_action">login</a>
 </div>
 
-<div>
-<h2>GAME INFO</h2>
-<input id="auth_token"/><BR>
-<a onclick="do_ajax('do_xml', 'game/info/', { auth_token:$('#auth_token').val() })" >DO IT</a>
+
+<div id="game_div" style="display:none;">
+AUTH TOKEN:<input id="auth_token"/><BR>
+<ul class="tabs">
+    <li><a href="#general_tab">General</a></li>
+    <li><a href="#social_tab">Social</a></li>
+    <li><a href="#items_tab">Items</a></li>
+</ul>
+
+<div class="tab_container">
+  <div id="general_tab" class="tab_content">
+    <a id="game_info" class="game_action">info</a>
+  </div>
+  <div id="social_tab" class="tab_content">
+    <a id="social_invite" class="game_action">generate invite</a><br>
+    <input id="invite_id"> <a id="social_invite_info" class="game_action">invite info</a> <a id="social_invite_accept" class="game_action">accept invite</a><br>
+    <a id="social_friend_show" class="game_action">friends</a><BR>
+    <a id="what_can_i_send" class="game_action">what can i send?</a><BR>
+    <a id="what_can_i_accept" class="game_action">what can i accept?</a><BR>
+    <a id="send" class="game_action">send</a>friend id:<input id="send_recipient_id"> mailable id:<input id="send_mailable_id"> message<input id="send_message"><BR>
+    <a id="accept" class="game_action">accept</a>mail id<input id="accept_mail_id"><BR>
+  </div>
+  <div id="items_tab" class="tab_content">
+    <a id="inventory" class="game_action">inventory</a><br>
+    <a id="shop_show" class="game_action">list shop</a><br>
+    <a id="shop_buy" class="game_action">buy from shop</a><input id="shop_buy_ikey"><br>
+  </div>
 </div>
+
+</div>
+
+
 
 <div id="log">
 <pre class="prettyprint lang-xml" id="codeblock"></pre>
