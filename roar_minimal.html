@@ -16,6 +16,8 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
     var xhr_address = "http://localhost/codeconsole/xhr_jsonp.php";
     var game_name = "server";
 
+    var script_param_count = 0;
+
    // Set up the functions to call when some buttons are pressed.
    // We use jquery and the ajax functions bound to the buttons.
 
@@ -126,6 +128,23 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		mail_id:$('#accept_mail_id').val()
 		} ); } );
 
+	$('#script_run').click( function(){
+		var params =  {
+			auth_token:$('#auth_token').val(),
+			script:$('#scriptname').val(),
+		};
+		for( var i=0; i < script_param_count; i++ )
+		{
+			params[ 'args['+$('#script_param_key'+i).val()+']' ] = $('#script_param_value'+i).val();
+		}
+		do_ajax( show_xml, 'scripts/run/', params);
+		} );
+
+	$('#script_add_param').click( function(){
+		$('#script_params').append('<input id="script_param_key'+script_param_count+'"/><input id="script_param_value'+script_param_count+'"/><br/>');
+		script_param_count += 1;
+		} );
+
 	//TABS CODE
 	//When page loads...
 	$(".tab_content").hide(); //Hide all content
@@ -195,6 +214,7 @@ AUTH TOKEN:<input id="auth_token"/><BR>
     <li><a href="#general_tab">General</a></li>
     <li><a href="#social_tab">Social</a></li>
     <li><a href="#items_tab">Items</a></li>
+    <li><a href="#script_tab">Scripts</a></li>
 </ul>
 
 <div class="tab_container">
@@ -214,6 +234,12 @@ AUTH TOKEN:<input id="auth_token"/><BR>
     <a id="inventory" class="game_action">inventory</a><br>
     <a id="shop_show" class="game_action">list shop</a><br>
     <a id="shop_buy" class="game_action">buy from shop</a><input id="shop_buy_ikey"><br>
+  </div>
+  <div id="script_tab" class="tab_content">
+     script name: <input id="scriptname"><br>
+     <a id="script_run" class="game_action">run</a><br>
+     <div id="script_params"></div>
+     <a id="script_add_param" class="game_action">+</a>
   </div>
 </div>
 
