@@ -4,12 +4,12 @@ header("Content-Type: application/javascript; charset=utf-8");
 
 if (!empty($_GET['game']) )
 {
-	define ('HOSTNAME', 'http://roar.io/'.$_GET['game'].'/');
+	define ('HOSTNAME', 'http://api.roar.io/'.$_GET['game'].'/');
 	unset( $_GET['game'] );
 }
 else
 {
-	define ('HOSTNAME', 'http://localhost/server/');
+	define ('HOSTNAME', 'http://api.roar.io/server/');
 }
 $callback = $_GET['callback'];
 unset($_GET['callback']);

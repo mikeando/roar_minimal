@@ -17,7 +17,10 @@ var ajax_counter=0;
 var ajax_callbacks=[];
 var do_ajax = function(callback, path, data)
 {
-	data.game = game_name;
+	if( typeof game_name != 'undefined' )
+	{
+		data.game = game_name;
+	}
 	data.path = path;
 	ajax_callbacks[ajax_counter] = callback;
 	data.callback = "ajax_callbacks["+ajax_counter+"]";
