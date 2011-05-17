@@ -62,7 +62,7 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 			function(xml) { 
 			$('#fb_oauth_create_div').hide();
 			$('#fb_oauth_login_div').show();
-			$('#fb_oauth_login_token').val( $('fb_oauth_create_token').val() );
+			$('#fb_oauth_login_token').val( $('#fb_oauth_create_token').val() );
 			show_xml(xml);
 			},
 			'facebook/create_oauth/',
