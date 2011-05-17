@@ -279,11 +279,21 @@ function base64_url_decode($input) {
 ?>
 <script>
   var fb_oauth_token = "<?php print($req_data['oauth_token']); ?>";
+  var canvas_page = "<?php print($canvas_page); ?>";
 </script>
 <!-- ======================================================== -->
 <!-- == End Code for decoding facebook signed requests     == -->
 <!-- ======================================================== -->
-  
+
+<?php
+  if( ! isset( $req_data['user_id'] ) )
+  {
+?>
+  <h2>You have not authorised this app ...</h2>
+  <p> Click the 
+<a class="game_action" onclick='top.location.href="http://www.facebook.com/dialog/oauth?client_id="+app_id+"&redirect_uri="+encodeURIComponent(canvas_page); return false'>AUTH</a><BR>
+link to authorise</p>
+<?php } ?>
 
 <div id="ping_div">
 <a class="game_action">PING!</a>
