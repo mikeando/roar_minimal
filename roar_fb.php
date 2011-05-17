@@ -12,6 +12,7 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
   <script type="text/javascript" src="http://localhost/codeconsole/js/prettify.js"></script>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script type="text/javascript" src="ajaxp.js"></script>
+  <script src="http://connect.facebook.net/en_US/all.js"></script>
   <script>
 
     var xhr_address = "xhr_jsonp.php";
@@ -197,6 +198,50 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
   //This file should contain your app secret and app id.
   require_once('fb_info.php');
 ?>
+
+<!-- ==================================================== -->
+<!-- == Boiler plate code for facebook credits testing == -->
+<!-- ==================================================== -->
+<div id="fb-root"></div>
+<script>var app_id = <?php print $app_id; ?>;</script>
+
+<script>
+    FB.init({appId:app_id, status:true, cookie:true});
+
+    function placeOrder() {
+
+      // Assign an internal ID that points to a database record
+      var order_info = 'abc123';
+
+      // calling the API ...
+      var obj = {
+        method: 'pay',
+        order_info: order_info,
+        purchase_type: 'item'
+      };
+
+      FB.ui(obj, callback);
+    }
+    
+    var callback = function(data) {
+      if (data['order_id']) {
+        return true;
+      } else {
+        //handle errors here
+        return false;
+      }
+    };
+
+    function writeback(str) {
+      document.getElementById('output').innerHTML=str;
+    }
+</script>
+
+<p> <a onclick="placeOrder(); return false;">Buy Stuff</a></p>
+
+<!-- =========================================================== -->
+<!-- == End of Boiler plate code for facebook credits testing == -->
+<!-- =========================================================== -->
 
 <!-- ==================================================== -->
 <!-- == Code for decoding facebook signed requests     == -->
