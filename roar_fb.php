@@ -26,6 +26,8 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 
         $('#fb_oauth_create_token').val( fb_oauth_token );
         $('#fb_oauth_login_token').val( fb_oauth_token );
+        $('#fb_signed_request_create_token').val( fb_signed_request );
+        $('#fb_signed_request_login_token').val( fb_signed_request );
 
 	$('#ping_div a').click( function(){ 
 		do_ajax( show_xml, 'info/ping/', {} );
@@ -58,6 +60,37 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 			'facebook/login_oauth/',
 			{
 				oauth_token:$('#fb_oauth_login_token').val()
+			}
+		);
+	} );
+
+	$('#fb_signed_create_div a').click( function() {
+		do_ajax(
+			function(xml) { 
+			$('#fb_signed_create_div').hide();
+			$('#fb_signed_login_div').show();
+			$('#fb_signed_request_login_token').val( $('#fb_signed_request_create_token').val() );
+			show_xml(xml);
+			},
+			'facebook/create_signed/',
+			{
+				name:$('#fb_signed_create_username').val(),
+				signed_request:$('#fb_signed_request_create_token').val()
+			}
+		);
+	} );
+
+	$('#fb_signed_login_div a').click( function() {
+		do_ajax(
+			function(xml) { 
+			$('#fb_signed_login_div').hide();
+			$('#game_div').show();
+			$('#auth_token').val( $(xml).find("auth_token").text() );
+			show_xml(xml);
+			},
+			'facebook/login_signed/',
+			{
+				signed_request:$('#fb_signed_request_login_token').val()
 			}
 		);
 	} );
@@ -279,6 +312,7 @@ function base64_url_decode($input) {
 ?>
 <script>
   var fb_oauth_token = "<?php print($req_data['oauth_token']); ?>";
+  var fb_signed_request = "<?php print($_POST['signed_request']); ?>";
   var canvas_page = "<?php print($canvas_page); ?>";
 </script>
 <!-- ======================================================== -->
@@ -302,6 +336,8 @@ link to authorise</p>
 <div id="chooser">
 <a class="game_action" onclick="$('#fb_oauth_create_div').show(); $('#chooser').hide();" >FB OAUTH CREATE</a>
 <a class="game_action" onclick="$('#fb_oauth_login_div').show(); $('#chooser').hide();" >FB OAUTH LOGIN</a>
+<a class="game_action" onclick="$('#fb_signed_create_div').show(); $('#chooser').hide();" >FB SIGNED REQUEST CREATE</a>
+<a class="game_action" onclick="$('#fb_signed_login_div').show(); $('#chooser').hide();" >FB SIGNED REQUEST LOGIN</a>
 </div>
 
 <div id="fb_oauth_create_div" style="display:none;">
@@ -317,6 +353,23 @@ link to authorise</p>
 <h2>LOG IN</h2>
 <table>
 <tr><td>oauth_token</td><td><input id="fb_oauth_login_token"/></td></tr>
+</table>
+<a class="game_action">login</a>
+</div>
+
+<div id="fb_signed_create_div" style="display:none;">
+<h2>CREATE</h2>
+<table>
+<tr><td>Username</td><td><input id="fb_signed_create_username"/></td></tr>
+<tr><td>signed request</td><td><input id="fb_signed_request_create_token"/></td></tr>
+</table>
+<a class="game_action">create</a>
+</div>
+
+<div id="fb_signed_login_div" style="display:none;">
+<h2>LOG IN</h2>
+<table>
+<tr><td>signed request</td><td><input id="fb_signed_request_login_token"/></td></tr>
 </table>
 <a class="game_action">login</a>
 </div>
