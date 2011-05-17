@@ -27,6 +27,18 @@ $session = curl_init($url);
 // If it's a POST, put the POST data in the body
 curl_setopt ($session, CURLOPT_POST, true);
 
+function clean( $arg )
+{
+      if( get_magic_quotes_gpc() )
+      {
+        return stripslashes($arg);
+      }
+      else
+      {
+        return $arg;
+      }
+}
+
 $flatget = array();
 foreach( $_GET as $k => $v )
 {
@@ -40,7 +52,8 @@ foreach( $_GET as $k => $v )
 	}
 	else
 	{
-		$flatget[$k]=$v;
+		printf( "// %s => %s\n", var_export($k,true), var_export($v,true) );
+		$flatget[clean($k)]=clean($v);
 	}
 } 
 

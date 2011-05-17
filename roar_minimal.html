@@ -40,7 +40,7 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 	} );
 
 	$('#ping_div a').click( function(){ 
-		do_ajax( show_xml, 'game/ping/', {} );
+		do_ajax( show_xml, 'info/ping/', {} );
 	} );
 
 	$('#login_div a').click( function(){ 
@@ -92,7 +92,7 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		var data = { 
 			auth_token:$('#auth_token').val()
 		};
-		do_ajax( show_xml, 'game/info/', data );
+		do_ajax( show_xml, 'user/view/', data );
 	} );
 
 	$('#social_invite').click( function(){ 
@@ -169,10 +169,14 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 			auth_token:$('#auth_token').val(),
 			script:$('#scriptname').val(),
 		};
+		var args = {};
 		for( var i=0; i < script_param_count; i++ )
 		{
-			params[ 'args['+$('#script_param_key'+i).val()+']' ] = $('#script_param_value'+i).val();
+			args[$('#script_param_key'+i).val()] = $('#script_param_value'+i).val();
 		}
+		console.log(args);
+		console.log( JSON.stringify(args) );
+                params['args']=JSON.stringify(args); 
 		do_ajax( show_xml, 'scripts/run/', params);
 		} );
 
