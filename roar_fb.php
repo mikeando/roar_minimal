@@ -192,6 +192,13 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		script_param_count += 1;
 		} );
 
+	$('#fb_shop_list').click( function(){ 
+		var data = { 
+			auth_token:$('#auth_token').val(),
+		};
+		do_ajax( show_xml, 'facebook/shop_list/', data );
+	} );
+
 	//TABS CODE
 	//When page loads...
 	$(".tab_content").hide(); //Hide all content
@@ -382,6 +389,7 @@ AUTH TOKEN:<input id="auth_token"/><BR>
     <li><a href="#items_tab">Items</a></li>
     <li><a href="#script_tab">Scripts</a></li>
     <li><a href="#soc_net_tab">Soc. Net.</a></li>
+    <li><a href="#fb_shop">FB. Shop.</a></li>
 </ul>
 
 <div class="tab_container">
@@ -411,6 +419,9 @@ AUTH TOKEN:<input id="auth_token"/><BR>
   <div id="soc_net_tab" class="tab_content">
      <a id="fb_friends" class="game_action">facebook friends</a>
      <a id="fb_login" class="game_action" onclick="$('#fb_oauth_login_div').show();">login again</a>
+  </div>
+  <div id="fb_shop" class="tab_content">
+     <a id="fb_shop_list" class="game_action">List Shop Items</a>
   </div>
 </div>
 
