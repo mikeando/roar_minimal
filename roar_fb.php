@@ -244,7 +244,7 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
     function placeOrder() {
 
       // Assign an internal ID that points to a database record
-      var order_info = 'abc123';
+      var order_info = {'item':'abc123','roar_id':'123123'};
 
       // calling the API ...
       var obj = {
