@@ -199,6 +199,29 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		do_ajax( show_xml, 'facebook/shop_list/', data );
 	} );
 
+	$('#fb_buy').click( function(){
+		var order_info = {
+			item:$('#fb_item_ikey').val(),
+			roar_id:$('#fb_buy_player_id').val()
+			};
+		var fb_call_obj = {
+			method:'pay',
+			order_info: order_info,
+			purchase_type: 'item'
+			};
+		FB.ui(fb_call_obj, function(data) { console.log(data); } );
+	} );
+
+    //the callback should (aparently) look more like this.
+//    var callback = function(data) {
+//      if (data['order_id']) {
+//        return true;
+//      } else {
+//        //handle errors here
+//        return false;
+//      }
+//    };
+
 	//TABS CODE
 	//When page loads...
 	$(".tab_content").hide(); //Hide all content
@@ -248,37 +271,10 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 <script>
     FB.init({appId:app_id, status:true, cookie:true});
 
-    function placeOrder() {
-
-      // Assign an internal ID that points to a database record
-      var order_info = {'item':'abc123','roar_id':'123123'};
-
-      // calling the API ...
-      var obj = {
-        method: 'pay',
-        order_info: order_info,
-        purchase_type: 'item'
-      };
-
-      FB.ui(obj, callback);
-    }
-    
-    var callback = function(data) {
-      if (data['order_id']) {
-        return true;
-      } else {
-        //handle errors here
-        return false;
-      }
-    };
-
     function writeback(str) {
       document.getElementById('output').innerHTML=str;
     }
 </script>
-
-<p> <a onclick="placeOrder(); return false;">Buy Stuff</a></p>
-
 <!-- =========================================================== -->
 <!-- == End of Boiler plate code for facebook credits testing == -->
 <!-- =========================================================== -->
@@ -421,7 +417,8 @@ AUTH TOKEN:<input id="auth_token"/><BR>
      <a id="fb_login" class="game_action" onclick="$('#fb_oauth_login_div').show();">login again</a>
   </div>
   <div id="fb_shop" class="tab_content">
-     <a id="fb_shop_list" class="game_action">List Shop Items</a>
+     <a id="fb_shop_list" class="game_action">List Shop Items</a><BR>
+     <a id="fb_buy" class="game_action">Buy</a> item ikey:<input id="fb_item_ikey"> player id:<input id="fb_buy_player_id">
   </div>
 </div>
 
