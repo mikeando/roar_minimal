@@ -28,9 +28,40 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
         $('#fb_oauth_login_token').val( fb_oauth_token );
         $('#fb_signed_request_create_token').val( fb_signed_request );
         $('#fb_signed_request_login_token').val( fb_signed_request );
+        $('#fb_signed_request_bind_token').val( fb_signed_request );
+
+	$('#create_div a').click( function(){ 
+		var data = { 
+			name:$('#create_username').val(),
+			hash:$('#create_hash').val()
+		};
+		$('#login_username').val( $('#create_username').val() );
+		$('#login_hash').val( $('#create_hash').val() );
+		var on_create = function(xml) {
+			//Should have some error handling in here...
+			$('#create_div').hide();
+			$('#login_div').show();
+			show_xml(xml);
+		};
+		do_ajax( on_create, 'user/create/', data )
+	} );
 
 	$('#ping_div a').click( function(){ 
 		do_ajax( show_xml, 'info/ping/', {} );
+	} );
+
+	$('#login_div a').click( function(){ 
+		var data = { 
+			name:$('#login_username').val(),
+			hash:$('#login_hash').val()
+		};
+		var on_create = function(xml) {
+			$('#login_div').hide();
+			$('#game_div').show();
+			$('#auth_token').val( $(xml).find("auth_token").text() );
+			show_xml(xml);
+		};
+		do_ajax( on_create, 'user/login/', data );
 	} );
 
 	$('#fb_oauth_create_div a').click( function() {
@@ -137,7 +168,7 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		var data = { 
 			auth_token:$('#auth_token').val(),
 		};
-		do_ajax( show_xml, 'shop/show/', data );
+		do_ajax( show_xml, 'shop/list/', data );
 	} );
 
 	$('#shop_buy').click( function(){ 
@@ -148,7 +179,7 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		do_ajax( show_xml, 'shop/buy/', data );
 	} );
 
-	$('#inventory').click( function(){ do_ajax( show_xml, 'items/show/', { auth_token:$('#auth_token').val() } ); } );
+	$('#inventory').click( function(){ do_ajax( show_xml, 'items/list/', { auth_token:$('#auth_token').val() } ); } );
 
 	$('#what_can_i_send').click( function(){ do_ajax( show_xml, 'mail/what_can_i_send/', { auth_token:$('#auth_token').val() } ); } );
 
@@ -168,6 +199,11 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 
 	$('#fb_friends').click( function(){ do_ajax( show_xml, 'facebook/friends/', {
 		auth_token:$('#auth_token').val()
+		} ); } );
+
+	$('#fb_bind').click( function(){ do_ajax( show_xml, 'facebook/bind_signed/', {
+		auth_token:$('#auth_token').val(),
+		signed_request:$('#fb_signed_request_bind_token').val()
 		} ); } );
 
 
@@ -337,10 +373,30 @@ link to authorise</p>
 </div><BR><BR><BR>
 
 <div id="chooser">
-<a class="game_action" onclick="$('#fb_oauth_create_div').show(); $('#chooser').hide();" >FB OAUTH CREATE</a>
-<a class="game_action" onclick="$('#fb_oauth_login_div').show(); $('#chooser').hide();" >FB OAUTH LOGIN</a>
-<a class="game_action" onclick="$('#fb_signed_create_div').show(); $('#chooser').hide();" >FB SIGNED REQUEST CREATE</a>
-<a class="game_action" onclick="$('#fb_signed_login_div').show(); $('#chooser').hide();" >FB SIGNED REQUEST LOGIN</a>
+<a class="game_action" onclick="$('#create_div').show(); $('#chooser').hide();" >CREATE</a><br> 
+<a class="game_action" onclick="$('#login_div').show(); $('#chooser').hide();" >LOG IN</a><br>
+<a class="game_action" onclick="$('#fb_oauth_create_div').show(); $('#chooser').hide();" >FB OAUTH CREATE</a><br>
+<a class="game_action" onclick="$('#fb_oauth_login_div').show(); $('#chooser').hide();" >FB OAUTH LOGIN</a><br>
+<a class="game_action" onclick="$('#fb_signed_create_div').show(); $('#chooser').hide();" >FB SIGNED REQUEST CREATE</a><br>
+<a class="game_action" onclick="$('#fb_signed_login_div').show(); $('#chooser').hide();" >FB SIGNED REQUEST LOGIN</a><br>
+</div>
+
+<div id="create_div" style="display:none;">
+<h2>CREATE</h2>
+<table>
+<tr><td>Username</td><td><input id="create_username"/></td></tr>
+<tr><td>Password</td><td><input id="create_hash"/></td></tr>
+</table>
+<a class="game_action">create</a>
+</div>
+
+<div id="login_div" style="display:none;">
+<h2>LOG IN</h2>
+<table>
+<tr><td>Username</td><td><input id="login_username"/></td></tr>
+<tr><td>Password</td><td><input id="login_hash"/></td></tr>
+</table>
+<a class="game_action">login</a>
 </div>
 
 <div id="fb_oauth_create_div" style="display:none;">
@@ -413,7 +469,8 @@ AUTH TOKEN:<input id="auth_token"/><BR>
      <a id="script_add_param" class="game_action">+</a>
   </div>
   <div id="soc_net_tab" class="tab_content">
-     <a id="fb_friends" class="game_action">facebook friends</a>
+     <a id="fb_friends" class="game_action">facebook friends</a><br>
+     <a id="fb_bind" class="game_action">facebook bind</a> Signed Request:<input id="fb_signed_request_bind_token"><br>
      <a id="fb_login" class="game_action" onclick="$('#fb_oauth_login_div').show();">login again</a>
   </div>
   <div id="fb_shop" class="tab_content">
