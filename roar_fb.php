@@ -12,8 +12,8 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 </style>
 
   <link rel="stylesheet" type="text/css" href="tabs.css" />
-  <link rel="stylesheet" type="text/css" href="http://localhost/codeconsole/css/prettify.css" />
-  <script type="text/javascript" src="http://localhost/codeconsole/js/prettify.js"></script>
+  <link rel="stylesheet" type="text/css" href="google-code-prettify/prettify.css" />
+  <script type="text/javascript" src="google-code-prettify/prettify.js"></script>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script type="text/javascript" src="ajaxp.js"></script>
   <script src="http://connect.facebook.net/en_US/all.js"></script>
