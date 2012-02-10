@@ -1,5 +1,9 @@
 <html>
 <head>
+<?php 
+  //This file should contain your app secret and app id.
+  require_once('fb_info.php');
+?>
 <style>
 a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 #log { clear:both; }
@@ -248,6 +252,25 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		FB.ui(fb_call_obj, function(data) { console.log(data); } );
 	} );
 
+	//Trial pay code
+	$('#fb_trialpay').click( function(){
+		var obj = {
+			method: 'pay',
+			action: 'earn_currency',
+			product: '<?php echo $root_url;?>currency_info.php'
+		};
+
+		FB.ui(obj, function(data) { console.log(data); } );
+	});
+	$('#fb_earn').click( function(){
+		var obj = {
+			method: 'pay',
+			action: 'earn_credits'
+		};
+
+		FB.ui(obj, function(data) { console.log(data); } );
+	});
+
     //the callback should (aparently) look more like this.
 //    var callback = function(data) {
 //      if (data['order_id']) {
@@ -293,10 +316,6 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 </head>
 <body>
 
-<?php 
-  //This file should contain your app secret and app id.
-  require_once('fb_info.php');
-?>
 
 <!-- ==================================================== -->
 <!-- == Boiler plate code for facebook credits testing == -->
@@ -476,6 +495,10 @@ AUTH TOKEN:<input id="auth_token"/><BR>
   <div id="fb_shop" class="tab_content">
      <a id="fb_shop_list" class="game_action">List Shop Items</a><BR>
      <a id="fb_buy" class="game_action">Buy</a> item ikey:<input id="fb_item_ikey"> player id:<input id="fb_buy_player_id">
+     <div>
+       <a id="fb_trialpay" class="game_action">Complete offers for in-game cash</a><BR>
+       <a id="fb_earn" class="game_action">Complete offers for facebook credits</a><BR>
+     </div>
   </div>
 </div>
 
