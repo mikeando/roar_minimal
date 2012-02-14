@@ -17,6 +17,12 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script type="text/javascript" src="ajaxp.js"></script>
   <script src="http://connect.facebook.net/en_US/all.js"></script>
+  <script type="text/javascript" src="http://www.google.com/jsapi">        //you should get your own Google key for this as well</script>
+  <script type="text/javascript">
+        google.load('payments', '1.0', {
+            'packages': ['production_config']
+	});
+  </script>
   <script>
 
     var xhr_address = "xhr_jsonp.php";
@@ -280,6 +286,66 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 //        return false;
 //      }
 //    };
+	//
+	//
+	function cws_purchase( jwt, successfn, failfn )
+	{
+		goog.payments.inapp.buy({
+			"parameters": {},
+			"jwt": jwt,
+			"success": function (result) {
+				if (typeof successfn === "function") {
+					successfn(result);
+			}
+			},
+			"failure": function (result) {
+				if (typeof failfn === "function") {
+				failfn(result);
+				}
+			}
+		}
+	)
+	}
+
+	function cws_buy_ok(x)
+	{
+		console.log("cws_buy_ok");
+		console.log(x);
+	}
+
+	function cws_buy_fail(x)
+	{
+		console.log("cws_buy_fail");
+		console.log(x);
+	}
+	
+	$('#cws_list').click( function(){ 
+		var data = { 
+			auth_token:$('#auth_token').val(),
+		};
+		do_ajax(
+			function(xml)
+			{
+				$('#cws_items').empty();
+
+				$(xml).find("shopitem").each( function()
+				{
+					var jwt = $(this).attr("jwt");
+					var shopitem = $(this);
+					var listitem = $('<li></li>');
+					var link = $('<a>'+shopitem.attr("label")+"</a>");
+					$("#cws_items").append( listitem  );
+					listitem.append(link);
+					link.click( function() { cws_purchase( jwt, cws_buy_ok, cws_buy_fail ); } );
+
+				} );
+
+				show_xml(xml);
+
+			},
+			'chrome_web_store/list/',
+			data );
+	} );
 
 	//TABS CODE
 	//When page loads...
@@ -461,6 +527,7 @@ AUTH TOKEN:<input id="auth_token"/><BR>
     <li><a href="#script_tab">Scripts</a></li>
     <li><a href="#soc_net_tab">Soc. Net.</a></li>
     <li><a href="#fb_shop">FB. Shop.</a></li>
+    <li><a href="#cws">Chrome Shop.</a></li>
 </ul>
 
 <div class="tab_container">
@@ -499,6 +566,12 @@ AUTH TOKEN:<input id="auth_token"/><BR>
        <a id="fb_trialpay" class="game_action">Complete offers for in-game cash</a><BR>
        <a id="fb_earn" class="game_action">Complete offers for facebook credits</a><BR>
      </div>
+  </div>
+  <div id="cws" class="tab_content">
+     <a id="cws_list" class="game_action">List Shop Items</a><BR>
+     <ul id="cws_items">
+       <li> No items yet </li>
+     </ul>
   </div>
 </div>
 
