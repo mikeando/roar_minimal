@@ -134,6 +134,37 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 				signed_request:$('#fb_signed_request_login_token').val()
 			}
 		);
+  } );
+
+	$('#goog_code_create_div a').click( function() {
+		do_ajax(
+			function(xml) { 
+			$('#goog_code_create_div').hide();
+			$('#game_div').show();
+			$('#auth_token').val( $(xml).find("auth_token").text() );
+			show_xml(xml);
+			},
+			'google/create_user/',
+			{
+				name:$('#goog_code_create_username').val(),
+				code:$('#goog_code_create_code').val()
+			}
+		);
+	} );
+
+	$('#goog_code_login_div a').click( function() {
+		do_ajax(
+			function(xml) { 
+			$('#goog_code_login_div').hide();
+			$('#game_div').show();
+			$('#auth_token').val( $(xml).find("auth_token").text() );
+			show_xml(xml);
+			},
+			'google/login_user/',
+			{
+				code:$('#goog_code_login_code').val()
+			}
+		);
 	} );
 
 	$('#game_info').click( function(){ 
@@ -214,6 +245,10 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 	$('#fb_bind').click( function(){ do_ajax( show_xml, 'facebook/bind_signed/', {
 		auth_token:$('#auth_token').val(),
 		signed_request:$('#fb_signed_request_bind_token').val()
+  } ); } );
+
+	$('#goog_friends').click( function(){ do_ajax( show_xml, 'google/friends/', {
+		auth_token:$('#auth_token').val()
 		} ); } );
 
 
@@ -453,6 +488,33 @@ function base64_url_decode($input) {
 link to authorise</p>
 <?php } ?>
 
+<h2>Google Auth</h2>
+<?php
+    $google_auth_params=array(
+      "response_type"=>"code",
+      "redirect_uri"=>$google["redirect_uri"],
+      "client_id"=>$google["client_id"],
+      "scope"=>implode( ' ', array(
+          "https://www.googleapis.com/auth/plus.me",
+          "https://www.googleapis.com/auth/plus.people.recommended"
+        ) ),
+      "access_type"=>"offline"
+    );
+
+    $temp_params=array();
+    foreach( $google_auth_params as $k => $v )
+    {
+      $temp_params[] = "$k=".rawurlencode($v);
+    }
+
+    $google_auth_url="https://accounts.google.com/o/oauth2/auth?" . implode( '&', $temp_params );
+?>
+
+  <a target="_new" href="<?php echo $google_auth_url; ?>">LOGIN</a>
+  <a target="_new" href="<?php echo $google_auth_url; ?>&approval_prompt=force">LOGIN FORCE</a>
+  These will open a new window, you will need to authorise and copy the code from there into this window.
+
+
 <div id="ping_div">
 <a class="game_action">PING!</a>
 </div><BR><BR><BR>
@@ -464,6 +526,8 @@ link to authorise</p>
 <a class="game_action" onclick="$('#fb_oauth_login_div').show(); $('#chooser').hide();" >FB OAUTH LOGIN</a><br>
 <a class="game_action" onclick="$('#fb_signed_create_div').show(); $('#chooser').hide();" >FB SIGNED REQUEST CREATE</a><br>
 <a class="game_action" onclick="$('#fb_signed_login_div').show(); $('#chooser').hide();" >FB SIGNED REQUEST LOGIN</a><br>
+<a class="game_action" onclick="$('#goog_code_create_div').show(); $('#chooser').hide();" >GOOGLE CODE CREATE</a><br>
+<a class="game_action" onclick="$('#goog_code_login_div').show(); $('#chooser').hide();" >GOOGLE CODE LOGIN</a><br>
 </div>
 
 <div id="create_div" style="display:none;">
@@ -518,6 +582,23 @@ link to authorise</p>
 <a class="game_action">login</a>
 </div>
 
+<div id="goog_code_create_div" style="display:none;">
+<h2>CREATE</h2>
+<table>
+<tr><td>Username</td><td><input id="goog_code_create_username"/></td></tr>
+<tr><td>Code</td><td><input id="goog_code_create_code"/></td></tr>
+</table>
+<a class="game_action">create</a>
+</div>
+
+<div id="goog_code_login_div" style="display:none;">
+<h2>LOG IN</h2>
+<table>
+<tr><td>Code</td><td><input id="goog_code_login_code"/></td></tr>
+</table>
+<a class="game_action">login</a>
+</div>
+
 <div id="game_div" style="display:none;">
 AUTH TOKEN:<input id="auth_token"/><BR>
 <ul class="tabs">
@@ -558,6 +639,7 @@ AUTH TOKEN:<input id="auth_token"/><BR>
      <a id="fb_friends" class="game_action">facebook friends</a><br>
      <a id="fb_bind" class="game_action">facebook bind</a> Signed Request:<input id="fb_signed_request_bind_token"><br>
      <a id="fb_login" class="game_action" onclick="$('#fb_oauth_login_div').show();">login again</a>
+     <a id="goog_friends" class="game_action">google gplus friends</a><br>
   </div>
   <div id="fb_shop" class="tab_content">
      <a id="fb_shop_list" class="game_action">List Shop Items</a><BR>
