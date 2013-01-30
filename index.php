@@ -75,6 +75,15 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 	} );
 
 	$('#fb_oauth_create_div a').click( function() {
+    var args = { 
+      oauth_token:$('#fb_oauth_create_token').val()
+    }
+    if( $('#fb_oauth_create_username').val()!="" )
+    {
+      args.name = $('#fb_oauth_create_username').val()
+    }
+    console.log(  $('#fb_oauth_create_username').val() )
+
 		do_ajax(
 			function(xml) { 
 			$('#fb_oauth_create_div').hide();
@@ -82,11 +91,8 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 			$('#fb_oauth_login_token').val( $('#fb_oauth_create_token').val() );
 			show_xml(xml);
 			},
-			'facebook/create_oauth/',
-			{
-				name:$('#fb_oauth_create_username').val(),
-				oauth_token:$('#fb_oauth_create_token').val()
-			}
+      'facebook/create_oauth/',
+      args
 		);
 	} );
 
@@ -105,7 +111,14 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		);
 	} );
 
-	$('#fb_signed_create_div a').click( function() {
+  $('#fb_signed_create_div a').click( function() {
+    var args = { 
+      signed_request:$('#fb_signed_request_create_token').val()
+    }
+    if( $('#fb_signed_create_username').val()!="" )
+    {
+      args.name = $('#fb_signed_create_username').val()
+    }
 		do_ajax(
 			function(xml) { 
 			$('#fb_signed_create_div').hide();
@@ -113,11 +126,8 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 			$('#fb_signed_request_login_token').val( $('#fb_signed_request_create_token').val() );
 			show_xml(xml);
 			},
-			'facebook/create_signed/',
-			{
-				name:$('#fb_signed_create_username').val(),
-				signed_request:$('#fb_signed_request_create_token').val()
-			}
+        'facebook/create_signed/',
+        args
 		);
 	} );
 
@@ -167,6 +177,22 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		);
 	} );
 
+	$('#goog_code_login_or_create_div a').click( function() {
+		do_ajax(
+			function(xml) { 
+			$('#goog_code_login_or_create_div').hide();
+			$('#game_div').show();
+			$('#auth_token').val( $(xml).find("auth_token").text() );
+			show_xml(xml);
+			},
+			'google/login_or_create_user/',
+			{
+				code:$('#goog_code_login_or_create_code').val()
+			}
+		);
+	} );
+		
+
 	$('#game_info').click( function(){ 
 		var data = { 
 			auth_token:$('#auth_token').val()
@@ -179,7 +205,7 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 			auth_token:$('#auth_token').val(),
 			friend_id:0
 		};
-		do_ajax( show_xml, 'social/invite_send/', data );
+		do_ajax( show_xml, 'friends/invite/', data );
 	} );
 
 	$('#social_invite_info').click( function(){ 
@@ -187,7 +213,7 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 			auth_token:$('#auth_token').val(),
 			invite_id:$('#invite_id').val()
 		};
-		do_ajax( show_xml, 'social/invite_info/', data );
+		do_ajax( show_xml, 'friends/info/', data );
 	} );
 
 	$('#social_invite_accept').click( function(){ 
@@ -195,14 +221,14 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 			auth_token:$('#auth_token').val(),
 			invite_id:$('#invite_id').val()
 		};
-		do_ajax( show_xml, 'social/invite_accept/', data );
+		do_ajax( show_xml, 'friends/accept/', data );
 	} );
 
 	$('#social_friend_show').click( function(){ 
 		var data = { 
 			auth_token:$('#auth_token').val(),
 		};
-		do_ajax( show_xml, 'social/friend_show/', data );
+		do_ajax( show_xml, 'friends/list/', data );
 	} );
 
 	$('#shop_show').click( function(){ 
@@ -247,7 +273,16 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 		signed_request:$('#fb_signed_request_bind_token').val()
   } ); } );
 
+	$('#fb_bind_oauth').click( function(){ do_ajax( show_xml, 'facebook/bind_oauth/', {
+		auth_token:$('#auth_token').val(),
+		oauth_token:$('#fb_bind_oauth_token').val()
+  } ); } );
+
 	$('#goog_friends').click( function(){ do_ajax( show_xml, 'google/friends/', {
+		auth_token:$('#auth_token').val()
+	} ); } );
+
+	$('#goog_token').click( function(){ do_ajax( show_xml, 'google/token/', {
 		auth_token:$('#auth_token').val()
 		} ); } );
 
@@ -292,6 +327,18 @@ a.game_action { color:#f00; border:1px solid #000; padding:1px; }
 			};
 		FB.ui(fb_call_obj, function(data) { console.log(data); } );
 	} );
+
+	$('#fb_fetch_oauth_token').click( function(){
+		var data = {
+			code:$('#fb_code').val()
+		}
+
+		do_ajax(
+			function(response){ console.log(response); },
+			'facebook/fetch_oauth_token/',
+			data
+		);
+	});
 
 	//Trial pay code
 	$('#fb_trialpay').click( function(){
@@ -488,6 +535,19 @@ function base64_url_decode($input) {
 link to authorise</p>
 <?php } ?>
 
+<h1>Authorize using facebook oauth flow</h1> 
+<?php if( isset($_GET['code']) ) { ?>
+<?php } else { ?>
+<a href="https://www.facebook.com/dialog/oauth?client_id=226741174074951&redirect_uri=http://admin.roar.io:15001/roar_trialpay_test/" target="_blank">Get code</a><br/>
+<a href="https://graph.facebook.com/oauth/access_token?client_id=226741174074951&redirect_uri=http://admin.roar.io:15001/roar_trialpay_test/&client_secret=5e10013f9248aef3c373c7d84a0eb442&code=CODE_GENERATED_BY_FACEBOOK" target="_blank:">Use a code</a>
+<p>
+FB Code: <input id="fb_code"></input>
+<span id=fb_oauth_token"><a href="#" id="fb_fetch_oauth_token">[OAUTHTOKEN]</a></span>
+</p>
+<?php } ?>
+
+
+
 <h2>Google Auth</h2>
 <?php
     $google_auth_params=array(
@@ -496,7 +556,8 @@ link to authorise</p>
       "client_id"=>$google["client_id"],
       "scope"=>implode( ' ', array(
           "https://www.googleapis.com/auth/plus.me",
-          "https://www.googleapis.com/auth/plus.people.recommended"
+          "https://www.googleapis.com/auth/plus.people.recommended",
+          "https://www.googleapis.com/auth/userinfo.profile"
         ) ),
       "access_type"=>"offline"
     );
@@ -528,6 +589,7 @@ link to authorise</p>
 <a class="game_action" onclick="$('#fb_signed_login_div').show(); $('#chooser').hide();" >FB SIGNED REQUEST LOGIN</a><br>
 <a class="game_action" onclick="$('#goog_code_create_div').show(); $('#chooser').hide();" >GOOGLE CODE CREATE</a><br>
 <a class="game_action" onclick="$('#goog_code_login_div').show(); $('#chooser').hide();" >GOOGLE CODE LOGIN</a><br>
+<a class="game_action" onclick="$('#goog_code_login_or_create_div').show(); $('#chooser').hide();" >GOOGLE CODE LOGIN OR CREATE</a><br>
 </div>
 
 <div id="create_div" style="display:none;">
@@ -599,6 +661,16 @@ link to authorise</p>
 <a class="game_action">login</a>
 </div>
 
+<div id="goog_code_login_or_create_div" style="display:none;">
+<h2>LOG IN</h2>
+<table>
+<tr><td>Code</td><td><input id="goog_code_login_or_create_code"/></td></tr>
+</table>
+<a class="game_action">login or create</a>
+</div>
+
+
+
 <div id="game_div" style="display:none;">
 AUTH TOKEN:<input id="auth_token"/><BR>
 <ul class="tabs">
@@ -638,8 +710,10 @@ AUTH TOKEN:<input id="auth_token"/><BR>
   <div id="soc_net_tab" class="tab_content">
      <a id="fb_friends" class="game_action">facebook friends</a><br>
      <a id="fb_bind" class="game_action">facebook bind</a> Signed Request:<input id="fb_signed_request_bind_token"><br>
+     <a id="fb_bind_oauth" class="game_action">facebook bind</a> Oauth token:<input id="fb_bind_oauth_token"><br>
      <a id="fb_login" class="game_action" onclick="$('#fb_oauth_login_div').show();">login again</a>
      <a id="goog_friends" class="game_action">google gplus friends</a><br>
+     <a id="goog_token" class="game_action">google token</a><br>
   </div>
   <div id="fb_shop" class="tab_content">
      <a id="fb_shop_list" class="game_action">List Shop Items</a><BR>
